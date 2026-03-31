@@ -27,7 +27,8 @@ jobs:
           node-version: '20' 
           cache: 'npm'          # Cache npm pour accélérer les runs suivants 
           cache-dependency-path: frontend/package-lock.json
-           # ÉTAPE 3 : Installer les dépendances JavaScript 
+          
+      # ÉTAPE 3 : Installer les dépendances JavaScript 
       - name: Installation dépendances frontend 
         run: npm ci             # 'ci' = install propre depuis package-lock.json 
         working-directory: frontend 
