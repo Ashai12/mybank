@@ -1,0 +1,50 @@
+# ─── Nom du workflow (visible dans l'interface GitHub Actions) 
+name: CI MyBank 
+ 
+# ─── Événements qui déclenchent ce workflow 
+on: 
+  push: 
+    branches: [main, develop]   # Déclenché à chaque push sur ces branches 
+  pull_request: 
+    branches: [main, develop]   # Déclenché à chaque PR vers ces branches 
+ 
+# ─── Les jobs du workflow (ici un seul) 
+jobs: 
+  ci:                           # Nom interne du job (arbitraire) 
+    runs-on: ubuntu-latest      # Machine virtuelle GitHub (Ubuntu 24.04) 
+ 
+    steps: 
+ 
+      # ÉTAPE 1 : Récupérer le code source 
+      - name: Checkout du code 
+        uses: actions/checkout@v4 
+        # ↑ Action officielle GitHub qui clone votre dépôt sur le runner 
+ 
+      # ÉTAPE 2 : Installer Node.js 
+      - name: Setup Node.js 
+        uses: actions/setup-node@v4 
+        with: 
+          node-version: '20' 
+          cache: 'npm'          # Cache npm pour accélérer les runs suivants 
+          cache-dependency-path: frontend/package-lock.json
+           # ÉTAPE 3 : Installer les dépendances JavaScript 
+      - name: Installation dépendances frontend 
+        run: npm ci             # 'ci' = install propre depuis package-lock.json 
+        working-directory: frontend 
+        # ↑ working-directory : toutes les commandes de ce step s'exécutent ici 
+ 
+      # ÉTAPE 4 : Vérifier la compilation React 
+      - name: Build React 
+        run: npm run build 
+        working-directory: frontend 
+ 
+      # ÉTAPE 5 : Vérifier la qualité du code 
+      - name: Lint ESLint 
+        run: npm run lint 
+        working-directory: frontend 
+        # ↑ Si une règle ESLint est violée, le pipeline s'arrête ici en rouge 
+ 
+      # ÉTAPE 6 : Exécuter les tests Jest 
+      - name: Tests Vitest 
+        run: npm run test -- --reporter=verbose 
+        working-directory: frontend 
